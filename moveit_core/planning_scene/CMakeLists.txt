@@ -30,10 +30,10 @@ target_link_libraries(${MOVEIT_LIB_NAME}
   ${OCTOMAP_LIBRARIES}
 )
 
-install(TARGETS ${MOVEIT_LIB_NAME}
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin)
+#install(TARGETS ${MOVEIT_LIB_NAME}
+#        LIBRARY DESTINATION lib
+#        ARCHIVE DESTINATION lib
+#        RUNTIME DESTINATION bin)
 install(DIRECTORY include/ DESTINATION include)
 
 if(BUILD_TESTING)
@@ -55,6 +55,7 @@ if(BUILD_TESTING)
     ${OCTOMAP_LIBRARIES}
     ${ament_index_cpp_LIBRARIES}
   )
+  ament_target_dependencies(test_planning_scene ament_index_cpp)
 
   ament_add_gtest(test_multi_threaded test/test_multi_threaded.cpp
     APPEND_LIBRARY_DIRS "${append_library_dirs}")

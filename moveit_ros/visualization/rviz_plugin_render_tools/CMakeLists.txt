@@ -24,7 +24,7 @@ add_library(${MOVEIT_LIB_NAME} SHARED
   src/mesh_shape.cpp
   ${HEADERS}
 )
-set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
+set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${PROJECT_VERSION}")
 
 target_link_libraries(${MOVEIT_LIB_NAME}
     rviz_ogre_vendor::OgreMain
@@ -42,7 +42,10 @@ ament_target_dependencies(${MOVEIT_LIB_NAME}
 
 install(DIRECTORY include/ DESTINATION include)
 
-install(TARGETS ${MOVEIT_LIB_NAME}
+install(
+  TARGETS ${MOVEIT_LIB_NAME}
+  EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin)
+  RUNTIME DESTINATION bin
+)

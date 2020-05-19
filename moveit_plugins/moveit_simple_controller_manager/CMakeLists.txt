@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.2)
-project(moveit_simple_controller_manager)
+project(moveit_simple_controller_manager VERSION 2.0.0)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -9,7 +9,7 @@ if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 endif()
 
 find_package(Boost REQUIRED thread)
-find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_ros REQUIRED)
 find_package(moveit_core REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -22,7 +22,7 @@ add_library(${PROJECT_NAME} SHARED
   src/moveit_simple_controller_manager.cpp
   src/follow_joint_trajectory_controller_handle.cpp
 )
-set_target_properties(${PROJECT_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION "${PROJECT_VERSION}")
 ament_target_dependencies(${PROJECT_NAME}
   rclcpp
   control_msgs
@@ -33,6 +33,7 @@ ament_target_dependencies(${PROJECT_NAME}
 )
 
 install(TARGETS ${PROJECT_NAME}
+        EXPORT export_${PROJECT_NAME}
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
         RUNTIME DESTINATION bin)
@@ -41,6 +42,7 @@ install(TARGETS ${PROJECT_NAME}
 install(DIRECTORY include/ DESTINATION include)
 
 pluginlib_export_plugin_description_file(moveit_core moveit_simple_controller_manager_plugin_description.xml)
+ament_export_interfaces(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_libraries(${PROJECT_NAME})
 ament_export_include_directories(include)
 ament_export_dependencies(pluginlib)

@@ -19,7 +19,7 @@ add_library(${MOVEIT_LIB_NAME} SHARED
   src/detail/constrained_valid_state_sampler.cpp
   src/detail/constrained_goal_sampler.cpp
 )
-set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
+set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${PROJECT_VERSION}")
 
 find_package(OpenMP REQUIRED)
 
@@ -52,6 +52,7 @@ ament_target_dependencies(moveit_ompl_planner_plugin
 target_link_libraries(moveit_ompl_planner_plugin ${MOVEIT_LIB_NAME})
 
 install(TARGETS ${MOVEIT_LIB_NAME} moveit_ompl_planner_plugin
+  EXPORT export_${PROJECT_NAME}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin)

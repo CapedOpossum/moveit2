@@ -21,6 +21,7 @@ target_link_libraries(${MOVEIT_LIB_NAME}
 
 add_library(collision_detector_fcl_plugin SHARED src/collision_detector_fcl_plugin_loader.cpp)
 set_target_properties(collision_detector_fcl_plugin PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
+target_link_libraries(collision_detector_fcl_plugin moveit_planning_scene)
 ament_target_dependencies(collision_detector_fcl_plugin
   rclcpp
   urdf
@@ -32,11 +33,11 @@ target_link_libraries(collision_detector_fcl_plugin
   ${MOVEIT_LIB_NAME}
 )
 
-install(TARGETS ${MOVEIT_LIB_NAME} collision_detector_fcl_plugin
-          LIBRARY DESTINATION lib
-          ARCHIVE DESTINATION lib
-          RUNTIME DESTINATION bin
-)
+#install(TARGETS ${MOVEIT_LIB_NAME} collision_detector_fcl_plugin
+#          LIBRARY DESTINATION lib
+#          ARCHIVE DESTINATION lib
+#          RUNTIME DESTINATION bin
+#)
 install(DIRECTORY include/ DESTINATION include)
 
 if(BUILD_TESTING)

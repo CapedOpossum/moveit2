@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.2)
-project(moveit_ros_planning_interface)
+project(moveit_ros_planning_interface VERSION 2.0.0)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -8,7 +8,7 @@ if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_ros REQUIRED)
 find_package(moveit_msgs REQUIRED)
 find_package(moveit_ros_planning REQUIRED)
 # find_package(moveit_ros_warehouse REQUIRED)
@@ -86,6 +86,7 @@ add_subdirectory(common_planning_interface_objects)
 # add_subdirectory(test)
 add_subdirectory(moveit_cpp)
 
+ament_export_interfaces(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_include_directories(include)
 ament_export_libraries(${THIS_PACKAGE_LIBRARIES})
 ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})

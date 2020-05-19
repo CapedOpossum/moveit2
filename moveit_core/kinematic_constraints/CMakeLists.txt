@@ -31,11 +31,11 @@ target_link_libraries(${MOVEIT_LIB_NAME}
   moveit_utils
 )
 
-install(TARGETS ${MOVEIT_LIB_NAME}
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-  RUNTIME DESTINATION bin
-)
+#install(TARGETS ${MOVEIT_LIB_NAME}
+#  LIBRARY DESTINATION lib
+#  ARCHIVE DESTINATION lib
+#  RUNTIME DESTINATION bin
+#)
 
 install(DIRECTORY include/ DESTINATION include)
 

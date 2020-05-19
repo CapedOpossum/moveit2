@@ -3,7 +3,7 @@ set(MOVEIT_LIB_NAME moveit_constraint_sampler_manager_loader)
 add_library(${MOVEIT_LIB_NAME} SHARED
     src/constraint_sampler_manager_loader.cpp)
 
-set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
+set_target_properties(${MOVEIT_LIB_NAME} PROPERTIES VERSION "${PROJECT_VERSION}")
 ament_target_dependencies(${MOVEIT_LIB_NAME}
   moveit_core
   rclcpp
@@ -16,6 +16,7 @@ target_link_libraries(${MOVEIT_LIB_NAME}
 )
 
 install(TARGETS ${MOVEIT_LIB_NAME}
+        EXPORT export_${PROJECT_NAME}
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
         RUNTIME DESTINATION bin)

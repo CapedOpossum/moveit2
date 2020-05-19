@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.2)
-project(moveit_kinematics)
+project(moveit_kinematics VERSION 2.0.0)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -8,7 +8,7 @@ if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_ros REQUIRED)
 
 find_package(Boost REQUIRED program_options system)
 find_package(Eigen3 REQUIRED)
@@ -43,6 +43,7 @@ add_subdirectory(srv_kinematics_plugin)
 # add_subdirectory(cached_ik_kinematics_plugin)
 add_subdirectory(test)
 
+ament_export_interfaces(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_libraries(
     moveit_kdl_kinematics_plugin
     moveit_lma_kinematics_plugin

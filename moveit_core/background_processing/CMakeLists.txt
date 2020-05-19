@@ -10,8 +10,8 @@ target_link_libraries(${MOVEIT_LIB_NAME}
     ${urdfdom_headers_LIBRARIES}
     ${Boost_LIBRARIES})
 
-install(TARGETS ${MOVEIT_LIB_NAME}
-  ARCHIVE DESTINATION lib
-LIBRARY DESTINATION lib)
+#install(TARGETS ${MOVEIT_LIB_NAME}
+#  ARCHIVE DESTINATION lib
+#LIBRARY DESTINATION lib)
 
 install(DIRECTORY include/ DESTINATION include)

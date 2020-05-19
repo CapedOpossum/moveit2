@@ -58,3 +58,5 @@ qtcreator-*
 
 #gdb
 *.gdb
+
+**/.DS_Store

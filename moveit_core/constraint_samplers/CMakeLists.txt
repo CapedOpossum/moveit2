@@ -22,11 +22,11 @@ target_link_libraries(${MOVEIT_LIB_NAME}
   moveit_planning_scene
 )
 
-install(TARGETS ${MOVEIT_LIB_NAME}
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin
-)
+#install(TARGETS ${MOVEIT_LIB_NAME}
+#        LIBRARY DESTINATION lib
+#        ARCHIVE DESTINATION lib
+#        RUNTIME DESTINATION bin
+#)
 
 install(DIRECTORY include/ DESTINATION include)
 
@@ -75,4 +75,5 @@ if(BUILD_TESTING)
     ${rclcpp_headers_LIBRARIES}
     ${geometric_shapes_LIBRARIES}
   )
+  ament_target_dependencies(test_constraint_samplers kdl_parser)
 endif()

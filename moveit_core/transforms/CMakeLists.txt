@@ -12,11 +12,11 @@ ament_target_dependencies(${MOVEIT_LIB_NAME}
   Boost
 )
 
-install(TARGETS ${MOVEIT_LIB_NAME}
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin
-)
+#install(TARGETS ${MOVEIT_LIB_NAME}
+#        LIBRARY DESTINATION lib
+#        ARCHIVE DESTINATION lib
+#        RUNTIME DESTINATION bin
+#)
 install(DIRECTORY include/ DESTINATION include)
 
 # Unit tests

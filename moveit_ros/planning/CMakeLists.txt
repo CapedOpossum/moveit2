@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.2)
-project(moveit_ros_planning)
+project(moveit_ros_planning VERSION 2.0.0)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -9,7 +9,7 @@ if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 endif()
 
 find_package(Boost REQUIRED system filesystem date_time program_options thread chrono)
-find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_ros REQUIRED)
 find_package(moveit_msgs REQUIRED)
 # find_package(moveit_ros_perception REQUIRED)
 find_package(pluginlib REQUIRED)
@@ -95,6 +95,7 @@ add_subdirectory(planning_components_tools)
 add_subdirectory(trajectory_execution_manager)
 add_subdirectory(plan_execution)
 
+ament_export_interfaces(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_include_directories(include)
 ament_export_libraries(${libraries})
 ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})

@@ -9,6 +9,7 @@ if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
+find_package(ament_cmake_ros REQUIRED)
 find_package(Boost REQUIRED system filesystem date_time thread serialization)
 find_package(moveit_core REQUIRED)
 find_package(moveit_ros_planning REQUIRED)
@@ -24,6 +25,7 @@ include_directories(ompl_interface/include
 
 add_subdirectory(ompl_interface)
 
+ament_export_interfaces(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_include_directories(include)
 ament_export_libraries(moveit_ompl_interface moveit_ompl_planner_plugin)
 ament_export_dependencies(moveit_core ompl)

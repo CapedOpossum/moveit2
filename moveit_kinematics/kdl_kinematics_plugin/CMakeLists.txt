@@ -12,6 +12,7 @@ ament_target_dependencies(${MOVEIT_LIB_NAME}
   moveit_msgs
   orocos_kdl
   kdl_parser
+  tf2_kdl
   EIGEN3
 )
 
@@ -23,7 +24,7 @@ target_compile_definitions(${MOVEIT_LIB_NAME} PRIVATE "MOVEIT_KDL_KINEMATICS_PLU
 
 install(
   TARGETS ${MOVEIT_LIB_NAME}
-  EXPORT ${MOVEIT_LIB_NAME}
+  EXPORT export_${MOVEIT_LIB_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
