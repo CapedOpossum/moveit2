@@ -390,7 +390,7 @@ planning_scene_monitor::CurrentStateMonitor::reevalMultiDof(void)
       {
         continue;
       }
-      (*jointTimeIter).second = latest_common_time;
+      joint_time_[joint] = latest_common_time;
 
       std::vector<double> new_values(joint->getStateSpaceDimension());
       const robot_model::LinkModel* link = joint->getChildLinkModel();
