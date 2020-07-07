@@ -17,7 +17,7 @@ if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 endif()
 
 find_package(Boost REQUIRED thread date_time system filesystem)
-find_package(ament_cmake_ros REQUIRED)
+find_package(ament_cmake REQUIRED)
 find_package(class_loader REQUIRED)
 find_package(geometric_shapes REQUIRED)
 find_package(interactive_markers REQUIRED)
