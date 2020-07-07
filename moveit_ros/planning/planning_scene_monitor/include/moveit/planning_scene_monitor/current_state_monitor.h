@@ -180,6 +180,8 @@ public:
     copy_dynamics_ = enabled;
   }
 
+  std::pair< bool, bool > reevalMultiDof(void);
+  
 private:
   void jointStateCallback(const sensor_msgs::msg::JointState::ConstSharedPtr joint_state);
   void tfCallback();

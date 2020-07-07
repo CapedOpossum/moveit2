@@ -335,6 +335,84 @@ bool planning_scene_monitor::CurrentStateMonitor::waitForCompleteState(const std
   return ok;
 }
 
+std::pair< bool, bool >
+planning_scene_monitor::CurrentStateMonitor::reevalMultiDof(void)
+{
+  // read multi-dof joint states from TF, if needed
+  const std::vector<const moveit::core::JointModel*>& multi_dof_joints = robot_model_->getMultiDOFJointModels();
+
+  bool update = false;
+  bool changes = false;
+  {
+    std::unique_lock<std::mutex> _(state_update_lock_);
+    for (const moveit::core::JointModel* joint : multi_dof_joints)
+    {
+      const std::string& child_frame = joint->getChildLinkModel()->getName();
+      const std::string& parent_frame =
+          joint->getParentLinkModel() ? joint->getParentLinkModel()->getName() : robot_model_->getModelFrame();
+
+      rclcpp::Time latest_common_time;
+      geometry_msgs::msg::TransformStamped transf;
+      try
+      {
+        transf = tf_buffer_->lookupTransform(parent_frame, child_frame, tf2::TimePointZero);
+        latest_common_time = transf.header.stamp;
+      }
+      catch (tf2::TransformException& ex)
+      {
+        RCLCPP_WARN_ONCE(LOGGER, "Unable to update multi-DOF joint '%s':"
+                                 "Failure to lookup transform between '%s'"
+                                 "and '%s' with TF exception: %s",
+                         joint->getName().c_str(), parent_frame.c_str(), child_frame.c_str(), ex.what());
+        continue;
+      }
+
+      // allow update if time is more recent or if it is a static transform
+      // (time = 0)
+      // NOTE (rjnieves): Need to watch the clock type before doing comparisons.
+      // TF2 seems to always provide time in RCL_ROS_TIME clock, but default
+      // constructed rclcpp::Time() uses RCL_SYSTEM_TIME.
+      auto timeZero = rclcpp::Time(0LL, RCL_ROS_TIME);
+      auto jointTimeIter = joint_time_.find(joint);
+      if (jointTimeIter == joint_time_.end())
+      {
+        RCLCPP_INFO(
+          LOGGER,
+          "Multi-DOF joint \"%s\" time initialized for first time.",
+          joint->getName().c_str()
+        );
+      }
+      else if
+      (
+        (latest_common_time <= (*jointTimeIter).second) &&
+        (latest_common_time > timeZero)
+      )
+      {
+        continue;
+      }
+      joint_time_[joint] = latest_common_time;
+
+      std::vector<double> new_values(joint->getStateSpaceDimension());
+      const robot_model::LinkModel* link = joint->getChildLinkModel();
+      if (link->jointOriginTransformIsIdentity())
+        joint->computeVariablePositions(tf2::transformToEigen(transf), new_values.data());
+      else
+        joint->computeVariablePositions(link->getJointOriginTransform().inverse() * tf2::transformToEigen(transf),
+                                        new_values.data());
+
+      if (joint->distance(new_values.data(), robot_state_.getJointPositions(joint)) > 1e-5)
+      {
+        changes = true;
+      }
+
+      robot_state_.setJointPositions(joint, new_values.data());
+      update = true;
+    }
+  }
+
+  return std::make_pair(update, changes);
+}
+
 void planning_scene_monitor::CurrentStateMonitor::jointStateCallback(
     const sensor_msgs::msg::JointState::ConstSharedPtr joint_state)
 {
@@ -407,8 +485,13 @@ void planning_scene_monitor::CurrentStateMonitor::jointStateCallback(
     }
   }
 
+  // NOTE (rjnieves): Since TF2 does not have an asynchronous notification
+  // facility for when the TF buffer receives a new update, we'll re-evaluate
+  // the multi-DOF joints every time standard joints are updated.
+  auto multiDofResult = this->reevalMultiDof();
+
   // callbacks, if needed
-  if (update)
+  if (update || multiDofResult.second /* changes */)
     for (JointStateUpdateCallback& update_callback : update_callbacks_)
       update_callback(joint_state);
 
@@ -418,60 +501,13 @@ void planning_scene_monitor::CurrentStateMonitor::jointStateCallback(
 
 void planning_scene_monitor::CurrentStateMonitor::tfCallback()
 {
-  // read multi-dof joint states from TF, if needed
-  const std::vector<const moveit::core::JointModel*>& multi_dof_joints = robot_model_->getMultiDOFJointModels();
-
-  bool update = false;
-  bool changes = false;
-  {
-    std::unique_lock<std::mutex> _(state_update_lock_);
-    for (const moveit::core::JointModel* joint : multi_dof_joints)
-    {
-      const std::string& child_frame = joint->getChildLinkModel()->getName();
-      const std::string& parent_frame =
-          joint->getParentLinkModel() ? joint->getParentLinkModel()->getName() : robot_model_->getModelFrame();
-
-      rclcpp::Time latest_common_time;
-      geometry_msgs::msg::TransformStamped transf;
-      try
-      {
-        transf = tf_buffer_->lookupTransform(parent_frame, child_frame, tf2::TimePointZero);
-        latest_common_time = transf.header.stamp;
-      }
-      catch (tf2::TransformException& ex)
-      {
-        RCLCPP_WARN_ONCE(LOGGER, "Unable to update multi-DOF joint '%s':"
-                                 "Failure to lookup transform between '%s'"
-                                 "and '%s' with TF exception: %s",
-                         joint->getName().c_str(), parent_frame.c_str(), child_frame.c_str(), ex.what());
-        continue;
-      }
-
-      // allow update if time is more recent or if it is a static transform (time = 0)
-      if (latest_common_time <= joint_time_[joint] && latest_common_time > rclcpp::Time(0))
-        continue;
-      joint_time_[joint] = latest_common_time;
-
-      std::vector<double> new_values(joint->getStateSpaceDimension());
-      const robot_model::LinkModel* link = joint->getChildLinkModel();
-      if (link->jointOriginTransformIsIdentity())
-        joint->computeVariablePositions(tf2::transformToEigen(transf), new_values.data());
-      else
-        joint->computeVariablePositions(link->getJointOriginTransform().inverse() * tf2::transformToEigen(transf),
-                                        new_values.data());
-
-      if (joint->distance(new_values.data(), robot_state_.getJointPositions(joint)) > 1e-5)
-      {
-        changes = true;
-      }
-
-      robot_state_.setJointPositions(joint, new_values.data());
-      update = true;
-    }
-  }
+  // NOTE (rjnieves): The multi-DOF joint re-evaluation was factored out, but
+  // still kept here in case TF2 re-introduces a TF buffer update notification
+  // facility.
+  auto multiDofResult = this->reevalMultiDof();
 
   // callbacks, if needed
-  if (changes)
+  if (multiDofResult.second /* changes */)
   {
     // stub joint state: multi-dof joints are not modelled in the message,
     // but we should still trigger the update callbacks
@@ -480,7 +516,7 @@ void planning_scene_monitor::CurrentStateMonitor::tfCallback()
       update_callback(joint_state);
   }
 
-  if (update)
+  if (multiDofResult.first /* update */)
   {
     // notify waitForCurrentState() *after* potential update callbacks
     state_update_condition_.notify_all();
