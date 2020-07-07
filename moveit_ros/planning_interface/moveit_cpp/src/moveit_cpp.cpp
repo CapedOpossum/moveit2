@@ -180,13 +180,13 @@ bool MoveItCpp::loadPlanningPipelines(const PlanningPipelineOptions& options)
     RCLCPP_ERROR(LOGGER, "Failed to load any planning pipelines.");
   }
 
+  groups_pipelines_map_.clear();
   // Retrieve group/pipeline mapping for faster lookup
   std::vector<std::string> group_names = robot_model_->getJointModelGroupNames();
   for (const auto& pipeline_entry : planning_pipelines_)
   {
     for (const auto& group_name : group_names)
     {
-      groups_pipelines_map_[group_name] = {};
       const auto& pipeline = pipeline_entry.second;
       for (const auto& planner_configuration : pipeline->getPlannerManager()->getPlannerConfigurations())
       {
@@ -253,6 +253,9 @@ std::set<std::string> MoveItCpp::getPlanningPipelineNames(const std::string& gro
     if (!group_name.empty())
     {
       const auto& group_pipelines = groups_pipelines_map_.at(group_name);
+      // BEGIN DEBUG CODE
+      RCLCPP_INFO(LOGGER, "Group \"%s\" has (%u) pipelines.", group_name.c_str(), group_pipelines.size());
+      // END DEBUG CODE
       if (group_pipelines.find(pipeline_name) == group_pipelines.end())
         continue;
     }
